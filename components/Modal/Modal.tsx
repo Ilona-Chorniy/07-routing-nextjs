@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import css from "./Modal.module.css";
@@ -13,13 +13,13 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
   const router = useRouter();
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
     } else {
       router.back();
     }
-  };
+  }, [onClose, router]);
 
   useEffect(() => {
     setModalRoot(document.getElementById("modal-root"));
@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
       window.removeEventListener("keydown", handleKeyDown);
       document.body.classList.remove("modal-open");
     };
-  }, []);
+  }, [handleClose]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
