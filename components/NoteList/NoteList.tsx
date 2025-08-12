@@ -1,3 +1,5 @@
+"use client";
+
 import css from "./NoteList.module.css";
 import type { Note } from "../../types/note";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,7 +57,13 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
           <p className={css.content}>{note.content}</p>
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
-            <Link className={css.link} href={`/notes/${note.id}`}>View details</Link>
+            <Link 
+              className={css.link} 
+              href={`/notes/${note.id}`}
+              scroll={false}
+            >
+              View details
+            </Link>
 
             <button
               className={css.button}

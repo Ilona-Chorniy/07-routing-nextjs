@@ -12,31 +12,35 @@ import { fetchNotes } from "@/lib/api";
 import css from './NotesPage.module.css'
 import type { FetchNotesResponse } from "@/lib/api";
 import { Toaster, toast } from "react-hot-toast";
+import { NoteTag } from "@/types/note";
 
 const PER_PAGE = 12;
 
 interface NotesClientProps {
   initialData: FetchNotesResponse;
+  tag?: NoteTag;
 }
 
-const NotesClient: React.FC<NotesClientProps> = ({ initialData }) => {
+const NotesClient: React.FC<NotesClientProps> = ({ initialData, tag }) => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(initialData.totalPages);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<FetchNotesResponse | null, Error>({
-    queryKey: ["notes", page, PER_PAGE, debouncedSearch],
-    queryFn: () => fetchNotes({ page, perPage: PER_PAGE, search: debouncedSearch }),
+  
+  const { data, isLoading, isError, error } = useQuery<FetchNotesResponse | null, Error>({
+    queryKey: ["notes", page, PER_PAGE, debouncedSearch, tag],
+    queryFn: () => fetchNotes({
+      page,
+      perPage: PER_PAGE,
+      search: debouncedSearch,
+      ...(tag ? { tag } : {}) 
+    }),
     placeholderData: keepPreviousData,
     initialData: page === 1 && !debouncedSearch ? initialData : undefined,
   });
+
+
 
   useEffect(() => {
     if (data?.totalPages !== undefined) {
@@ -57,6 +61,8 @@ const NotesClient: React.FC<NotesClientProps> = ({ initialData }) => {
       }
     }
   }, [isError, error]);
+
+
 
   return (
     <div className={css.app}>
@@ -97,6 +103,8 @@ const NotesClient: React.FC<NotesClientProps> = ({ initialData }) => {
           />
         </NoteModal>
       )}
+
+
     </div>
   );
 };

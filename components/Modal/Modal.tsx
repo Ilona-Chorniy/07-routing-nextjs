@@ -1,24 +1,34 @@
+"use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import css from "./Modal.module.css";
 
 interface ModalProps {
-  onClose: () => void;
+  onClose?: () => void;
   children: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
+  const router = useRouter();
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      router.back();
+    }
+  };
 
   useEffect(() => {
     setModalRoot(document.getElementById("modal-root"));
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("modal-open");
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        handleClose();
       }
     };
 
@@ -26,13 +36,13 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = originalOverflow;
+      document.body.classList.remove("modal-open");
     };
-  }, [onClose]);
+  }, []);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      handleClose();
     }
   };
 
@@ -45,7 +55,12 @@ const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
       aria-modal="true"
       onClick={handleBackdropClick}
     >
-      <div className={css.modal}>{children}</div>
+      <div
+        className={css.modal}
+        onClick={(e) => e.stopPropagation()} 
+      >
+        {children}
+      </div>
     </div>,
     modalRoot
   );

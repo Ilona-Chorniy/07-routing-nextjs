@@ -5,6 +5,7 @@ export interface FetchNotesParams {
     page?: number;
     perPage?: number;
     search?: string;
+    tag?: NoteTag;
 }
 
 export interface FetchNotesResponse {
@@ -22,9 +23,9 @@ const BASE_URL = 'https://notehub-public.goit.study/api';
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 function checkToken() {
-  if (!TOKEN || TOKEN.trim() === '') {
+    if (!TOKEN || TOKEN.trim() === '') {
     throw new Error('Access token is missing or empty. API calls will fail.');
-  }
+    }
 }
 
 export async function fetchNotes(params: FetchNotesParams = {}): Promise<FetchNotesResponse> {
@@ -37,6 +38,9 @@ export async function fetchNotes(params: FetchNotesParams = {}): Promise<FetchNo
     };
     if (params.search) {
         queryParams.search = params.search;
+    }
+    if (params.tag) {
+        queryParams.tag = params.tag;
     }
 
     const response = await axios.get<FetchNotesResponse>(`${BASE_URL}/notes`, {
@@ -68,11 +72,11 @@ export async function deleteNote(id: string): Promise<Note> {
     return response.data;
 }
 export async function fetchNoteById(id: string): Promise<Note> {
-  checkToken();
-  const response = await axios.get<Note>(`${BASE_URL}/notes/${id}`, {
+    checkToken();
+    const response = await axios.get<Note>(`${BASE_URL}/notes/${id}`, {
     headers: {
-      Authorization: `Bearer ${TOKEN}`,
+        Authorization: `Bearer ${TOKEN}`,
     },
-  });
-  return response.data;
+    });
+    return response.data;
 }
